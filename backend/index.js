@@ -1,19 +1,19 @@
-const port = 4000;
+require('dotenv').config;
+const port = process.env.PORT || 4000;
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
+const { connection } = require("./db")
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
-require('dotenv').config();
 
+const key = process.env.SECRET_KEY
 app.use(express.json());
 app.use(cors());
-
-
-//database connection
-mongoose.connect(process.env.ATLAS_URI);
+let Product = require('./Models/productModel')
+const Users = require('./Models/userModel')
 
 //to get api - this connects the browser
 app.get("/", (req, res) => {
@@ -42,41 +42,6 @@ app.post("/upload", upload.single('product'), (req, res) => {
 
 })
 
-//schema for creating products
-const Product = mongoose.model("Product", {
-    id: {
-        type: Number,
-        required: true,
-    },
-    name: {
-        type: String,
-        required: true,
-    },
-    image: {
-        type: String,
-        required: true,
-    },
-    category: {
-        type: String,
-        required: true,
-    },
-    new_price: {
-        type: Number,
-        required: true,
-    },
-    old_price: {
-        type: Number,
-        required: true,
-    },
-    date: {
-        type: Date,
-        default: Date.now,
-    },
-    available: {
-        type: Boolean,
-        dafault: true,
-    }
-})
 //to create product
 app.post('/addproduct', async (req, res) => {
     const product = new Product({
@@ -117,7 +82,7 @@ app.get('/allproducts', async (req, res) => {
 })
 
 
-//api for newcollection datas fetching from dab
+//api for newcollection datas fetching from db
 app.get('/newcollections', async (req, res) => {
     let products = await Product.find({})
     let newcollection = products.slice(1).slice(-8)
@@ -129,27 +94,6 @@ app.get('/popularinwomen', async (req, res) => {
     let products = await Product.find({ category: "women" })
     let popular_in_women = products.slice(0, 4)
     res.send(popular_in_women)
-})
-
-//schema for user creation
-const Users = mongoose.model("Users", {
-    name: {
-        type: String,
-    },
-    email: {
-        type: String,
-        unique: true,
-    },
-    password: {
-        type: String,
-    },
-    cartData: {
-        type: Object,
-    },
-    date: {
-        type: Date,
-        dafault: Date.now
-    }
 })
 
 //creating endpoint for registering the user in db
@@ -175,7 +119,7 @@ app.post('/Signup', async (req, res) => {
             id: user.id,
         }
     }
-    const token = jwt.sign(data, 'secret_ecom');
+    const token = jwt.sign(data, key);
     res.json({ success: true, token })
 })
 
@@ -191,16 +135,17 @@ app.post('/login', async (req, res) => {
                     id: user.id
                 }
             }
-            const token = jwt.sign(data, 'secret_ecom');
+            const token = jwt.sign(data, key);
             res.json({ success: true, token });
         }
         else {
-            res.json({ success: false, errors: "wrong password" });
+            res.json({ success: false, errors: "Password is incorrect." });
         }
     }
     else {
-        res.json({ success: false, errors: "wrong emailid" })
+        res.json({ success: false, errors: "Incorrect email id." })
     }
+
 })
 
 
@@ -212,7 +157,7 @@ const fetchUser = async (req, res, next) => {
 
     } else {
         try {
-            const data = jwt.verify(token, 'secret_ecom')
+            const data = jwt.verify(token, key)
             req.user = data.user;
             next();
         } catch (error) {
@@ -251,6 +196,7 @@ app.post('/getcart', fetchUser, async (req, res) => {
 //api creation - output will be in terminal using node ./index.js cmd
 app.listen(port, (error) => {
     if (!error) {
+        console.log(port)
     }
     else {
         console.log(error)
