@@ -1,18 +1,28 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Genii Backend",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \\\"Error: no test specified\\\" && exit 1"
   },
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/meerkatjon/genii.git"
+  },
+  "keywords": [
+    "genii"
+  ],
+  "author": "Jenipher",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.18.3",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.2.0",
-    "multer": "^1.4.5-lts.1"
-  }
+    "multer": "^1.4.5-lts.1"},
+  "bugs": {
+    "url": "https://github.com/meerkatjon/genii/issues"
+  },
+  "homepage": "https://github.com/meerkatjon/genii#readme"
 }
